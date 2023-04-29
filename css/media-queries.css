@@ -1,0 +1,231 @@
+@media screen and (max-width: 800px) {
+  .menu_cross {
+    display: block;
+  }
+  .menu_item_wrapper img {
+    width: 20px;
+  }
+  .app_name {
+      font-size: 36px;
+  }
+  .auth_menu_icon {
+      width: 30px;
+      display: block;
+  }
+  main {
+      width: 100%;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: space-between;
+  }
+  .form {
+      max-width: 500px;
+      width: 100%;
+  }
+  .text {
+      font-size: 20px;
+      text-align: center;
+      margin: 0 0 40px 0;
+  }
+  .form > input {
+      width: 100%;
+      letter-spacing: 2px;
+      height: 60px;
+      border-radius: 8px;
+      font-size: 20px;
+      padding: 0 0 0 20px;
+      margin: 10px 0;
+  }
+  main > img {
+      max-width: 100px;
+      margin: 30px 0;
+  }
+  footer > p {
+      opacity: .5;
+      font-size: 14px;
+  }
+  nav {
+      display: none;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .menu_cross {
+    display: block;
+  }
+  .application {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100vw;
+      flex-direction: column;
+      height: 100vh;
+  }
+  .menu {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: -280px;
+  }
+  .devices_container {
+      max-width: 100%;
+      width: 95%;
+      max-height: 90vh;
+      overflow: hidden;
+      overflow-y: scroll;
+  }
+  .menu_icon {
+      width: 30px;
+      display: block;
+      margin: 0 0 0 30px;
+  }
+}
+
+@media screen and (max-height: 800px) {
+  .menu_item_wraper > div {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+  }
+  .menu_items {
+    padding: 0 0 0 20px;
+    font-size: 24px;
+  }
+  .menu {
+      max-width: 240px;
+      min-width: 240px;
+  }
+  .line {
+      width: 160px;
+      margin: 3px 0;
+  }
+  main > img {
+      max-width: 30%;
+  }
+  .form > input {
+      width: 340px;
+      letter-spacing: 2px;
+      color: white;
+      height: 45px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+      padding: 0 0 0 20px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .devices_container {
+      padding: 2%;
+      width: 96%;
+  }
+  .menu_icon {
+      width: 30px;
+      display: block;
+      margin: 0 0 0 10px;
+  }
+  .notification img {
+      width: 80px;
+  }
+  .notification {
+      max-width: 100%;
+      margin: 10px;
+  }
+  .title {
+      font-size: 24px;
+  }
+  .common_device {
+      width: 100%;
+      margin: 15px 0 0 0;
+      justify-content: space-between;
+  }
+  .common_device_ext_wrapper {
+      justify-content: space-between;
+  }
+  .common_device_name {
+      font-size: 24px;
+  }
+  .main_page,
+  .living_room,
+  .bed_room,
+  .kitchen,
+  .bath_room,
+  .sensors_page,
+  .notifications_page {
+      margin: 0;
+  }
+  .outside_sensors {
+      justify-content: center;
+      width: 100%;
+      flex-wrap: wrap;
+  }
+  .outside_sensor {
+      margin: 10px 10px 0px 10px;
+  }
+  .remote {
+      padding: 20px 5px;
+      max-width: 285px;
+  }
+  .on_off {
+      padding: 10px;
+      width: 30px;
+      margin: 0 10px 0 0;
+  }
+  .remote_btn {
+      width: 25px;
+      padding: 8px;
+      margin: 0px 4px;
+  }
+  .remote_bot {
+      justify-content: space-around;
+  }
+}
+
+@media screen and (max-width: 400px) and (max-height: 700px) {
+  .app_name {
+      font-size: 24px;
+  }
+  .text {
+    font-size: 16px;
+    text-align: center;
+    margin: 0 0 0px 0;
+  }
+  .logo {
+      font-size: 24px;
+  }
+  .form > input {
+      height: 40px;
+      font-size: 16px;
+      padding: 0 0 0 20px;
+      margin: 10px 0;
+      width: 100%;
+  }
+  .user_name {
+      font-size: 20px;
+  }
+  .btn {
+      margin: 30px 0 20px 0;
+      font-size: 24px;
+      padding: 5px 30px;
+  }
+  .section_name {
+      margin: 40px 0 20px 0;
+      font-size: 20px;
+  }
+  .sensor_block {
+      min-width: 140px;
+      margin: 0 20px 0 0;
+  }
+  .sensor_container > img {
+      width: 40px;
+  }
+  .value {
+      font-size: 30px;
+  }
+  .sensor_name {
+      font-size: 17px;
+  }
+}

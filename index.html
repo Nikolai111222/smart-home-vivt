@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/media-queries.css">
+  <link rel="stylesheet" href="css/remotes.css">
+  <title>Smart Home</title>
+</head>
+<body>
+
+
+
+<div class="main_container" id="app">
+  <auth v-if="auth"></auth>
+
+  <transition name="slide">
+    <div v-if="application" class="application">
+      <img src="pix/menu.png" class="menu_icon" @click="showAppMenu">
+
+      <app-menu></app-menu>
+
+      <div class="devices_container">
+        <div>
+          <transition name="slide">
+            <div v-show="mainPage" class="main_page">
+              <div class="title">Добрый вечер, Николай</div>
+
+              <div class="section_name">На улице</div>
+              <section class="outside_sensors">
+                <div class="outside_sensor">
+                  <img src="pix/temperature.png">
+                  <span>-8 °C</span>
+                </div>
+
+                <div class="outside_sensor">
+                  <img src="pix/clouds.png">
+                  <span>Облачно</span>
+                </div>
+
+                <div class="outside_sensor">
+                  <img src="pix/dawn.png">
+                  <span>Вечер</span>
+                </div>
+              </section>
+
+              <div class="section_name">В доме</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempMainHi, status_blue: thempMainLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                    <span class="value">{{ thempValueMain }} °C</span>
+                    <span class="status">{{ thempStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: !water}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ waterStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: !gas}" class="sensor_block">
+                  <span class="sensor_name">Газ</span>
+                  <div class="sensor_container">
+                    <img src="pix/gas.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ gasStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightMainOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="section_name">Температура</div>
+              <section class="themperature">
+                <img src="pix/snow.png">
+                <input class="range" type="range" min="10" max="30" step="1" v-model="thempValueMain" @click="statusMain">
+                <img src="pix/heat.png">
+              </section>
+
+              <div class="section_name">Общие</div>
+              <section class="common_devices">
+                <div class="common_device" v-bind:class="{common_device_disable: !door1, common_device_enable: door1}" @click="doorChange1">
+                  <span class="common_device_name">Входная дверь</span>
+                  <img v-if="door1" class="common_device_icon" src="pix/lock1.png">
+                  <img v-if="!door1" class="common_device_icon" src="pix/lock2.png">
+                  <div v-bind:class="{prikol_green: door1, prikol_red: !door1}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !door2, common_device_enable: door2}" @click="doorChange2">
+                  <span class="common_device_name">Задняя дверь</span>
+                  <img v-if="door2" class="common_device_icon" src="pix/lock1.png">
+                  <img v-if="!door2" class="common_device_icon" src="pix/lock2.png">
+                  <div v-bind:class="{prikol_green: door2, prikol_red: !door2}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !water, common_device_enable: water}" @click="waterChangeMain">
+                  <span class="common_device_name">Подача воды</span>
+                  <img v-if="water" class="common_device_icon" src="pix/water1.png">
+                  <img v-if="!water" class="common_device_icon" src="pix/water2.png">
+                  <div v-bind:class="{prikol_green: water, prikol_red: !water}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !elec, common_device_enable: elec}" @click="elecChange">
+                  <span class="common_device_name">Электропитание</span>
+                  <img v-if="elec" class="common_device_icon" src="pix/Elec1.png">
+                  <img v-if="!elec" class="common_device_icon" src="pix/Elec2.png">
+                  <div v-bind:class="{prikol_green: elec, prikol_red: !elec}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !gas, common_device_enable: gas}" @click="gasChangeMain">
+                  <span class="common_device_name">Газ</span>
+                  <img v-if="gas" class="common_device_icon" src="pix/gas1.png">
+                  <img v-if="!gas" class="common_device_icon" src="pix/gas2.png">
+                  <div v-bind:class="{prikol_green: gas, prikol_red: !gas}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !fan, common_device_enable: fan}" @click="fan = !fan">
+                  <span class="common_device_name">Вентиляция</span>
+                  <img v-if="fan" class="common_device_icon" src="pix/fan1.png">
+                  <img v-if="!fan" class="common_device_icon" src="pix/fan2.png">
+                  <div v-bind:class="{prikol_green: fan, prikol_red: !fan}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !curtains, common_device_enable: curtains}" @click="curtains = !curtains">
+                  <span class="common_device_name">Жалюзи</span>
+                  <img v-if="curtains" class="common_device_icon" src="pix/Curtains1.png">
+                  <img v-if="!curtains" class="common_device_icon" src="pix/Curtains2.png">
+                  <div v-bind:class="{prikol_green: curtains, prikol_red: !curtains}"></div>
+                </div>
+              </section>
+
+              <div class="section_name">Действия</div>
+              <section class="actions">
+                <div class="action" @click="turnOffAllLight">
+                  <span class="action_name">Выключить весь свет</span>
+                  <img class="action_icon" src="pix/light2.png">
+                </div>
+
+                <div class="action" @click="">
+                  <span class="action_name">Выключить всю воду</span>
+                  <img class="action_icon" src="pix/water2.png">
+                </div>
+
+                <div class="action" @click="">
+                  <span class="action_name">Проверить систему</span>
+                  <img class="action_icon" src="pix/check2.png">
+                </div>
+              </section>
+            </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="livingRoom" class="living_room">
+                <div class="title">Гостиная</div>
+
+                <div class="section_name">Датчики</div>
+                <section class="sensors">
+                  <div v-bind:class="{status_red: thempLivingHi, status_blue: thempLivingLow}" class="sensor_block">
+                    <span class="sensor_name">Температура</span>
+                    <div class="sensor_container">
+                      <img src="pix/thermometer.png">
+                      <div class="sensor_container_text">
+                        <span class="value">{{ thempValueLiving }} °C</span>
+                        <span class="status">{{ thempStatusLiving }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sensor_block">
+                    <span class="sensor_name">Влажность воздуха</span>
+                    <div class="sensor_container">
+                      <img src="pix/rain.png">
+                      <div class="sensor_container_text">
+                        <span class="value">65 %</span>
+                        <span class="status">В норме</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-bind:class="{status_grey: lightLivingOff}" class="sensor_block">
+                    <span class="sensor_name">Свет</span>
+                    <div class="sensor_container">
+                      <img src="pix/light-bulb-w.png">
+                      <div class="sensor_container_text">
+                        <span class="value">--</span>
+                        <span class="status">{{ lightStatusLiving }}</span>
+                      </div>
+                   </div>
+                  </div>
+                </section>
+
+                <div class="section_name">Температура</div>
+                <section class="themperature">
+                  <img src="pix/snow.png">
+                  <input class="range" type="range" min="10" max="30" step="1" v-model="thempValueLiving" @click="statusLiving">
+                  <img src="pix/heat.png">
+                </section>
+
+                <div class="section_name">Устройства</div>
+                <section class="common_devices">
+                  <div class="common_device" v-bind:class="{common_device_disable: !fanLiving, common_device_enable: fanLiving}" @click="fanLiving = !fanLiving">
+                    <span class="common_device_name">Вентиляция</span>
+                    <div class="common_device_icons">
+                      <img v-if="fanLiving" class="common_device_icon" src="pix/fan1.png">
+                      <img v-if="!fanLiving" class="common_device_icon" src="pix/fan2.png">
+                    </div>
+                    <div v-bind:class="{prikol_green: fanLiving, prikol_red: !fanLiving}"></div>
+                  </div>
+
+                  <div class="common_device" v-bind:class="{common_device_disable: !curtainsLiving, common_device_enable: curtainsLiving}" @click="curtainsLiving = !curtainsLiving">
+                    <span class="common_device_name">Жалюзи</span>
+                    <div class="common_device_icons">
+                      <img v-if="curtainsLiving" class="common_device_icon" src="pix/curtains1.png">
+                      <img v-if="!curtainsLiving" class="common_device_icon" src="pix/curtains2.png">
+                    </div>
+                    <div v-bind:class="{prikol_green: curtainsLiving, prikol_red: !curtainsLiving}"></div>
+                  </div>
+
+                  <div class="common_device common_device_ext" v-bind:class="{common_device_disable: !lightLiving1, common_device_enable: lightLiving1}">
+                    <div class="common_device_ext_wrapper">
+                      <div class="wrapper">
+                       <img @click="lightControlLiving1 = !lightControlLiving1, arrowUp1 = !arrowUp1" class="arrow" v-bind:class="{next_left: arrowUp1}" src="pix/next2.png">
+                        <span class="common_device_name">Освещение</span>
+                        <div class="common_device_icons">
+                          <img @click="changeLightLiving1" v-if="lightLiving1" class="common_device_icon" src="pix/light1.png">
+                          <img @click="changeLightLiving1" v-if="!lightLiving1" class="common_device_icon" src="pix/light2.png">
+
+                        </div>
+                      </div>
+
+                      <div v-if="lightControlLiving1" class="light_control">
+                        <img class="hue" src="pix/color_wheel_730.png">
+                        <div class="brightness">
+                          <img class="brightness_icon" src="pix/sun1.png">
+                          <input class="range" type="range" min="0" max="100" step="1" value="50">
+                          <img class="brightness_icon" src="pix/sun2.png">
+                        </div>                      
+                      </div>
+                    </div>
+                    <div v-bind:class="{prikol_green: lightLiving1, prikol_red: !lightLiving1}"></div>
+                  </div>
+
+                  <div class="common_device common_device_ext" v-bind:class="{common_device_disable: !lightLiving2, common_device_enable: lightLiving2}">
+                    <div class="common_device_ext_wrapper">
+                      <div class="wrapper">
+                        <img @click="lightControlLiving2 = !lightControlLiving2, arrowUp2 = !arrowUp2" class="arrow" v-bind:class="{next_left: arrowUp2}" src="pix/next2.png">
+                        <span class="common_device_name">Доп освещение</span>
+                        <div class="common_device_icons">
+                          <img @click="changeLightLiving2" v-if="lightLiving2" class="common_device_icon" src="pix/light1.png">
+                          <img @click="changeLightLiving2" v-if="!lightLiving2" class="common_device_icon" src="pix/light2.png">
+                        </div>
+                      </div>            
+                      <div v-if="lightControlLiving2" class="light_control">
+                        <img class="hue" src="pix/color_wheel_730.png">
+                        <div class="brightness">
+                          <img class="brightness_icon" src="pix/sun1.png">
+                          <input class="range" type="range" min="0" max="100" step="1" value="50">
+                          <img class="brightness_icon" src="pix/sun2.png">
+                        </div>
+                      </div>          
+                    </div>
+                    <div v-bind:class="{prikol_green: lightLiving2, prikol_red: !lightLiving2}"></div>
+                  </div>
+
+                  <div class="common_device" v-bind:class="{common_device_disable: !smartTVLiving, common_device_enable: smartTVLiving}">
+                    <img @click="showRemoteLiving" class="remote_icon" src="pix/remote-control.png">
+                    <span class="common_device_name">Smart TV</span>
+                    <div class="common_device_icons">
+                      <img @click="hideRemoteLiving" v-if="smartTVLiving" class="common_device_icon" src="pix/tv1.png">
+                      <img @click="hideRemoteLiving" v-if="!smartTVLiving" class="common_device_icon" src="pix/tv2.png">
+                    </div>
+                    <div v-bind:class="{prikol_green: smartTVLiving, prikol_red: !smartTVLiving}"></div>
+                  </div>
+                </section>
+              </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="bedRoom" class="bed_room">
+              <div class="title">Спальня</div>
+
+              <div class="section_name">Датчики</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempBedHi, status_blue: thempBedLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueBed }} °C</span>
+                      <span class="status">{{ thempStatusBed }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65%</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightBedOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusBed }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="section_name">Температура</div>
+              <section class="themperature">
+                <img src="pix/snow.png">
+                <input class="range" type="range" min="10" max="30" step="1" v-model="thempValueBed" @click="statusBed">
+                <img src="pix/heat.png">
+              </section>
+
+              <div class="section_name">Устройства</div>
+              <section class="common_devices">
+              <div class="common_device" v-bind:class="{common_device_disable: !fanBed, common_device_enable: fanBed}" @click="fanBed = !fanBed">
+                <span class="common_device_name">Вентиляция</span>
+                <div class="common_device_icons">
+                  <img v-if="fanBed" class="common_device_icon" src="pix/fan1.png">
+                  <img v-if="!fanBed" class="common_device_icon" src="pix/fan2.png">
+                </div>
+                <div v-bind:class="{prikol_green: fanBed, prikol_red: !fanBed}"></div>
+              </div>
+
+              <div class="common_device" v-bind:class="{common_device_disable: !curtainsBed, common_device_enable: curtainsBed}" @click="curtainsBed = !curtainsBed">
+                <span class="common_device_name">Жалюзи</span>
+                <div class="common_device_icons">
+                  <img v-if="curtainsBed" class="common_device_icon" src="pix/curtains1.png">
+                  <img v-if="!curtainsBed" class="common_device_icon" src="pix/curtains2.png">
+                </div>
+                <div v-bind:class="{prikol_green: curtainsBed, prikol_red: !curtainsBed}"></div>
+              </div>
+
+              <div class="common_device common_device_ext" v-bind:class="{common_device_disable: !light1Bed, common_device_enable: light1Bed}">
+                <div class="common_device_ext_wrapper">
+                  <div class="wrapper">
+                    <img @click="lightControl1Bed = !lightControl1Bed, arrowUp1Bed = !arrowUp1Bed" class="arrow" v-bind:class="{next_left: arrowUp1Bed}" src="pix/next2.png">
+                    <span class="common_device_name">Освещение</span>
+                    <div class="common_device_icons">
+                      <img @click="changeLightBed1" v-if="light1Bed" class="common_device_icon" src="pix/light1.png">
+                      <img @click="changeLightBed1" v-if="!light1Bed" class="common_device_icon" src="pix/light2.png">
+                    </div>
+                  </div>
+                  <div v-if="lightControl1Bed" class="light_control">
+                    <img class="hue" src="pix/color_wheel_730.png">
+                    <div class="brightness">
+                      <img class="brightness_icon" src="pix/sun1.png">
+                      <input class="range" type="range" min="0" max="100" step="1" value="50">
+                      <img class="brightness_icon" src="pix/sun2.png">
+                    </div>
+                  </div>
+                </div>
+                <div v-bind:class="{prikol_green: light1Bed, prikol_red: !light1Bed}"></div>
+              </div>
+
+              <div class="common_device common_device_ext" v-bind:class="{common_device_disable: !light2Bed, common_device_enable: light2Bed}">
+                <div class="common_device_ext_wrapper">
+                  <div class="wrapper">
+                    <img @click="lightControl2Bed = !lightControl2Bed, arrowUp2Bed = !arrowUp2Bed" class="arrow" v-bind:class="{next_left: arrowUp2Bed}" src="pix/next2.png">
+                    <span class="common_device_name">Доп освещение</span>
+                    <div class="common_device_icons">
+                      <img @click="changeLightBed2" v-if="light2Bed" class="common_device_icon" src="pix/light1.png">
+                      <img @click="changeLightBed2" v-if="!light2Bed" class="common_device_icon" src="pix/light2.png">
+                    </div>
+                  </div>
+                  <div v-if="lightControl2Bed" class="light_control">
+                    <img class="hue" src="pix/color_wheel_730.png">
+
+                    <div class="brightness">
+                      <img class="brightness_icon" src="pix/sun1.png">
+
+                      <input class="range" type="range" min="0" max="100" step="1" value="50">
+
+                      <img class="brightness_icon" src="pix/sun2.png">
+                    </div>
+                  </div>                  
+                </div>
+                <div v-bind:class="{prikol_green: light2Bed, prikol_red: !light2Bed}"></div>
+              </div>
+
+              <div class="common_device" v-bind:class="{common_device_disable: !smartTVBed, common_device_enable: smartTVBed}">
+                <img @click="showRemoteTVBed" class="remote_icon" src="pix/remote-control.png">
+                <span class="common_device_name">Smart TV</span>
+                <div class="common_device_icons">
+                  <img @click="hideRemoteTVBed" v-if="smartTVBed" class="common_device_icon" src="pix/tv1.png">
+                  <img @click="hideRemoteTVBed" v-if="!smartTVBed" class="common_device_icon" src="pix/tv2.png">
+                </div>
+                <div v-bind:class="{prikol_green: smartTVBed, prikol_red: !smartTVBed}"></div>
+              </div>
+
+              <div class="common_device" v-bind:class="{common_device_disable: !conditioner, common_device_enable: conditioner}">
+                <img @click="showRemoteCond" class="remote_icon" src="pix/remote-control.png">
+                <span class="common_device_name">Кондиционер</span>
+                <div class="common_device_icons">
+                  <img @click="hideRemoteCond" v-if="conditioner" class="common_device_icon" src="pix/cond1.png">
+                  <img @click="hideRemoteCond" v-if="!conditioner" class="common_device_icon" src="pix/cond2.png">
+                </div>
+                <div v-bind:class="{prikol_green: conditioner, prikol_red: !conditioner}"></div>
+              </div>
+              </section>
+            </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="kitchenPage" class="kitchen">
+              <div class="title">Кухня</div>
+
+              <div class="section_name">Датчики</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempKitchenHi, status_blue: thempKitchenLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueKitchen }} °C</span>
+                      <span class="status">{{ thempStatusKitchen }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightKitchenOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusKitchen }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_grey: true}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">Выкл</span>
+                    </div>
+                 </div>
+                </div>
+              </section>
+
+              <div class="section_name">Температура</div>
+              <section class="themperature">
+                <img src="pix/snow.png">
+                <input class="range" type="range" min="10" max="30" step="1" v-model="thempValueKitchen" @click="statusKitchen">
+                <img src="pix/heat.png">
+              </section>
+
+              <div class="section_name">Устройства</div>
+              <section class="common_devices">
+                <div class="common_device" v-bind:class="{common_device_disable: !fanKitchen, common_device_enable: fanKitchen}" @click="fanKitchen = !fanKitchen">
+                  <span class="common_device_name">Вентиляция</span>
+                  <div class="common_device_icons">
+                    <img v-if="fanKitchen" class="common_device_icon" src="pix/fan1.png">
+                    <img v-if="!fanKitchen" class="common_device_icon" src="pix/fan2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: fanKitchen, prikol_red: !fanKitchen}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !curtainsKitchen, common_device_enable: curtainsKitchen}" @click="curtainsKitchen = !curtainsKitchen">
+                  <span class="common_device_name">Жалюзи</span>
+                  <div class="common_device_icons">
+                    <img v-if="curtainsKitchen" class="common_device_icon" src="pix/curtains1.png">
+                    <img v-if="!curtainsKitchen" class="common_device_icon" src="pix/curtains2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: curtainsKitchen, prikol_red: !curtainsKitchen}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !lightKitchen, common_device_enable: lightKitchen}" @click="changeLightKitchen">
+                  <span class="common_device_name">Освещение</span>
+                  <div class="common_device_icons">
+                    <img v-if="lightKitchen" class="common_device_icon" src="pix/light1.png">
+                    <img v-if="!lightKitchen" class="common_device_icon" src="pix/light2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: lightKitchen, prikol_red: !lightKitchen}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !tvKitchen, common_device_enable: tvKitchen}" @click="changeTVKitchen">
+                  <span class="common_device_name">Телевизор</span>
+                  <div class="common_device_icons">
+                    <img v-if="tvKitchen" class="common_device_icon" src="pix/tv1.png">
+                    <img v-if="!tvKitchen" class="common_device_icon" src="pix/tv2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: tvKitchen, prikol_red: !tvKitchen}"></div>
+                </div>
+
+                <div class="common_device common_device_ext" v-bind:class="{common_device_disable: !kettleKitchen, common_device_enable: kettleKitchen}">
+                  <div class="common_device_ext_wrapper">
+                    <div class="wrapper">
+                      <span class="common_device_name">Чайник</span>
+                      <div class="common_device_icons">
+                        <img @click="changeKettleKitchen" v-if="kettleKitchen" class="common_device_icon" src="pix/kettle1.png">
+                        <img @click="changeKettleKitchen" v-if="!kettleKitchen" class="common_device_icon" src="pix/kettle2.png">
+                        <img @click="kettleControlKitchen = !kettleControlKitchen, arrowUpKitchen = !arrowUpKitchen" class="arrow" v-bind:class="{next_left: arrowUpKitchen}" src="pix/next2.png">
+                      </div>
+                    </div>
+                    <div v-if="kettleControlKitchen" class="water_control">
+                      <span>Вскипятить воду</span>
+                      <img src="pix/steam.png">
+                    </div>                    
+                  </div>
+                </div>
+              </section>
+            </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="bathRoom" class="bath_room">
+              <div class="title">Ванная</div>
+
+              <div class="section_name">Датчики</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempBathHi, status_blue: thempBathLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueBath }} °C</span>
+                      <span class="status">{{ thempStatusBath }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightBathOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusBath }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_red: boilerHi, status_blue: boilerLow}" class="sensor_block">
+                  <span class="sensor_name">Бойлер</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ boilerValue }} °C</span>
+                      <span class="status">{{ boilerStatus }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_grey: true}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">Выкл</span>
+                    </div>
+                 </div>
+                </div>
+              </section>
+
+              <div class="section_name">Температура</div>
+              <section class="themperature">
+                <img src="pix/snow.png">
+                <input class="range" type="range" min="10" max="30" step="1" v-model="thempValueBath" @click="statusBath">
+                <img src="pix/heat.png">
+              </section>
+
+              <div class="section_name">Бойлер</div>
+              <section class="themperature">
+                <img src="pix/snow.png">
+                <input class="range" type="range" min="10" max="30" step="1" v-model="boilerValue" @click="boilStatus">
+                <img src="pix/heat.png">
+              </section>
+
+              <div class="section_name">Устройства</div>
+              <section class="common_devices">
+                <div class="common_device" v-bind:class="{common_device_disable: !fanBath, common_device_enable: fanBath}" @click="fanBath = !fanBath">
+                  <span class="common_device_name">Вентиляция</span>
+                  <div class="common_device_icons">
+                    <img v-if="fanBath" class="common_device_icon" src="pix/fan1.png">
+                    <img v-if="!fanBath" class="common_device_icon" src="pix/fan2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: fanBath, prikol_red: !fanBath}"></div>
+                </div>
+
+                <div class="common_device" v-bind:class="{common_device_disable: !lightBath, common_device_enable: lightBath}" @click="changeLightBath">
+                  <span class="common_device_name">Освещение</span>
+                  <div class="common_device_icons">
+                    <img v-if="lightBath" class="common_device_icon" src="pix/light1.png">
+                    <img v-if="!lightBath" class="common_device_icon" src="pix/light2.png">
+                  </div>
+                  <div v-bind:class="{prikol_green: lightBath, prikol_red: !lightBath}"></div>
+                </div>
+              </section>
+            </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="sensorsPage" class="sensors_page">
+              <div class="section_name">Общие</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempMainHi, status_blue: thempMainLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                    <span class="value">{{ thempValueMain }} °C</span>
+                    <span class="status">{{ thempStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: !water}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ waterStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: !gas}" class="sensor_block">
+                  <span class="sensor_name">Газ</span>
+                  <div class="sensor_container">
+                    <img src="pix/gas.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ gasStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightMainOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusMain }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="section_name">Гостиная</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempLivingHi, status_blue: thempLivingLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueLiving }} °C</span>
+                      <span class="status">{{ thempStatusLiving }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightLivingOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusLiving }}</span>
+                    </div>
+                 </div>
+                </div>
+              </section>
+
+              <div class="section_name">Спальня</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempBedHi, status_blue: thempBedLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueBed }} °C</span>
+                      <span class="status">{{ thempStatusBed }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65%</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightBedOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusBed }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="section_name">Кухня</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempKitchenHi, status_blue: thempKitchenLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueKitchen }} °C</span>
+                      <span class="status">{{ thempStatusKitchen }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightKitchenOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusKitchen }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_grey: true}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">Выкл</span>
+                    </div>
+                 </div>
+                </div>
+              </section>
+
+              <div class="section_name">Ванная</div>
+              <section class="sensors">
+                <div v-bind:class="{status_red: thempBathHi, status_blue: thempBathLow}" class="sensor_block">
+                  <span class="sensor_name">Температура</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ thempValueBath }} °C</span>
+                      <span class="status">{{ thempStatusBath }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sensor_block">
+                  <span class="sensor_name">Влажность воздуха</span>
+                  <div class="sensor_container">
+                    <img src="pix/rain.png">
+                    <div class="sensor_container_text">
+                      <span class="value">65 %</span>
+                      <span class="status">В норме</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-bind:class="{status_grey: lightBathOff}" class="sensor_block">
+                  <span class="sensor_name">Свет</span>
+                  <div class="sensor_container">
+                    <img src="pix/light-bulb-w.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">{{ lightStatusBath }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_red: boilerHi, status_blue: boilerLow}" class="sensor_block">
+                  <span class="sensor_name">Бойлер</span>
+                  <div class="sensor_container">
+                    <img src="pix/thermometer.png">
+                    <div class="sensor_container_text">
+                      <span class="value">{{ boilerValue }} °C</span>
+                      <span class="status">{{ boilerStatus }}</span>
+                    </div>
+                 </div>
+                </div>
+
+                <div v-bind:class="{status_grey: true}" class="sensor_block">
+                  <span class="sensor_name">Вода</span>
+                  <div class="sensor_container">
+                    <img src="pix/water.png">
+                    <div class="sensor_container_text">
+                      <span class="value">--</span>
+                      <span class="status">Выкл</span>
+                    </div>
+                 </div>
+                </div>
+              </section>
+            </div>
+          </transition>
+
+          <transition name="slide">
+            <div v-show="notificationsPage" class="notifications_page">
+              <div class="title">Уведомления</div>
+
+              <section class="notifications">
+                <div v-if="notifThemp" class="notification">
+                  <div class="notification_wrapper">             
+                    <p class="notification_description">Температура находится за пределами нормы</p>
+                  </div>
+                  <img src="pix/themp.png">
+                </div>
+
+                <div v-if="notifDoors" class="notification">
+                  <div class="notification_wrapper">             
+                    <p class="notification_description">Одна или несколько дверей открыты</p>
+                  </div>
+                  <img src="pix/lock1.png">
+                </div>
+
+                <div v-if="notifWater" class="notification notification_orange">
+                  <div class="notification_wrapper">             
+                    <p class="notification_description">Прекращена подача воды в дом</p>
+                  </div>
+                  <img src="pix/water1.png">
+                </div>
+
+                <div v-if="notifGas" class="notification notification_orange">
+                  <div class="notification_wrapper">             
+                    <p class="notification_description">Прекращена подача газа в дом</p>
+                  </div>
+                  <img src="pix/gas1.png">
+                </div>    
+                
+                <div v-if="notifElec" class="notification notification_orange">
+                  <div class="notification_wrapper">             
+                    <p class="notification_description">Прекращена подача электричества в дом</p>
+                  </div>
+                  <img src="pix/elec1.png">
+                </div>                
+              </section>
+            </div>
+          </transition>
+        </div>
+      </div>
+
+      <div class="notifs_on_right">
+        <transition name="fade_auth_menu">
+          <div @click="notifThempRight = !notifThempRight" v-if="notifThempRight" class="notification">
+            <div class="notification_wrapper">             
+              <p class="notification_description">Температура находится за пределами нормы</p>
+            </div>
+            <img src="pix/themp.png">
+          </div>
+        </transition>
+
+        <transition name="fade_auth_menu">
+          <div @click="notifDoorsRight = !notifDoorsRight" v-if="notifDoorsRight" class="notification">
+            <div class="notification_wrapper">             
+              <p class="notification_description">Одна или несколько дверей открыты</p>
+            </div>
+            <img src="pix/lock1.png">
+          </div>
+        </transition>
+
+        <transition name="fade_auth_menu">
+          <div @click="notifWaterRight = !notifWaterRight" v-if="notifWaterRight" class="notification notification_orange">
+            <div class="notification_wrapper">             
+              <p class="notification_description">Прекращена подача воды в дом</p>
+            </div>
+            <img src="pix/water1.png">
+          </div>
+        </transition>
+
+        <transition name="fade_auth_menu">
+          <div @click="notifGasRight = !notifGasRight" v-if="notifGasRight" class="notification notification_orange">
+            <div class="notification_wrapper">             
+              <p class="notification_description">Прекращена подача газа в дом</p>
+            </div>
+            <img src="pix/gas1.png">
+          </div>    
+        </transition>
+
+        <transition name="fade_auth_menu">
+          <div @click="notifElecRight = !notifElecRight" v-if="notifElecRight" class="notification notification_orange">
+            <div class="notification_wrapper">             
+              <p class="notification_description">Прекращена подача электричества в дом</p>
+            </div>
+            <img src="pix/elec1.png">
+          </div>
+        </transition>
+      </div>
+    </div>
+  </transition>
+
+  <remote-tv v-show="remoteTV"></remote-tv>
+  <remote-cond v-show="remoteCond"></remote-cond>
+
+
+</div>
+
+
+<script src="js/vue.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/scripts.js"></script>
+<script src="js/jq_scripts.js"></script>
+</body>
+</html>
+
+
+<!--
+
+<div style="
+    width: 120px;
+    height: 120px;
+    background: rgba(197, 119, 119, 0.5);
+    position: absolute;
+    right: -30px;
+    border-radius: 50%;
+    z-index: 1;
+"></div>
+
+-->
